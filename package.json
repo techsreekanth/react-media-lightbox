@@ -15,6 +15,14 @@
   ],
   "license": "MIT",
   "author": "Sreekanth Ramachandran <tech.sreekanth@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/techsreekanth/react-media-lightbox.git"
+  },
+  "bugs": {
+    "url": "https://github.com/techsreekanth/react-media-lightbox/issues"
+  },
+  "homepage": "https://github.com/techsreekanth/react-media-lightbox#readme",
   "type": "module",
   "sideEffects": [
     "**/*.css"
