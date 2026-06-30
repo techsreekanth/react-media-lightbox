@@ -10,6 +10,9 @@
   -webkit-backdrop-filter: blur(12px);
   animation: rml-fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  overscroll-behavior: contain;
 }
 
 .rml-content {
@@ -20,6 +23,9 @@
   align-items: center;
   justify-content: center;
   outline: none;
+  /* Smoothly snap back into place when a swipe is released. */
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
 }
 
 /* ---------- Image slide ---------- */
@@ -30,6 +36,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Let JS own horizontal/vertical swipe gestures over the image. */
+  touch-action: none;
 }
 
 .rml-image {
@@ -77,8 +85,8 @@
 /* ---------- Controls ---------- */
 .rml-closeBtn {
   position: absolute;
-  top: 30px;
-  right: 30px;
+  top: max(30px, env(safe-area-inset-top));
+  right: max(30px, env(safe-area-inset-right));
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
@@ -94,10 +102,17 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.rml-closeBtn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
-  transform: scale(1.05);
+@media (hover: hover) {
+  .rml-closeBtn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+  }
+}
+
+.rml-closeBtn:active {
+  background: rgba(255, 255, 255, 0.28);
+  transform: scale(0.92);
 }
 
 .rml-closeBtn svg {
@@ -125,10 +140,17 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.rml-navBtn:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.25);
-  transform: translateY(-50%) scale(1.05);
+@media (hover: hover) {
+  .rml-navBtn:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-50%) scale(1.05);
+  }
+}
+
+.rml-navBtn:active {
+  background: rgba(255, 255, 255, 0.28);
+  transform: translateY(-50%) scale(0.92);
 }
 
 .rml-prevBtn {
@@ -148,7 +170,7 @@
 /* ---------- Footer ---------- */
 .rml-footer {
   position: absolute;
-  bottom: 30px;
+  bottom: max(30px, env(safe-area-inset-bottom));
   left: 0;
   right: 0;
   text-align: center;
@@ -212,41 +234,98 @@
 
 /* ---------- Responsive ---------- */
 @media (max-width: 768px) {
-  .rml-closeBtn {
-    top: 15px;
-    right: 15px;
-    width: 40px;
-    height: 40px;
+  .rml-content {
+    width: 100vw;
+    height: 100dvh;
   }
 
+  .rml-closeBtn {
+    top: max(12px, env(safe-area-inset-top));
+    right: max(12px, env(safe-area-inset-right));
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Bottom-center the nav buttons so they're reachable with the thumbs. */
   .rml-navBtn {
+    top: auto;
+    bottom: max(74px, calc(env(safe-area-inset-bottom) + 64px));
+    transform: none;
+    width: 48px;
+    height: 48px;
+  }
+
+  .rml-navBtn:active {
+    transform: scale(0.9);
+  }
+
+  .rml-prevBtn {
+    left: 50%;
+    margin-left: -64px;
+  }
+
+  .rml-nextBtn {
+    right: 50%;
+    margin-right: -64px;
+  }
+
+  .rml-navBtn svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .rml-footer {
+    bottom: max(20px, calc(env(safe-area-inset-bottom) + 12px));
+    padding: 0 20px;
+  }
+
+  .rml-title {
+    font-size: 15px;
+    max-width: 86%;
+  }
+
+  .rml-image {
+    max-width: 96vw;
+    max-height: 82dvh;
+    border-radius: 4px;
+  }
+
+  .rml-playerContainer {
+    width: 96vw;
+    border-radius: 8px;
+  }
+}
+
+/* Compact landscape phones: keep nav buttons on the sides instead. */
+@media (max-width: 900px) and (orientation: landscape) {
+  .rml-navBtn {
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
     width: 44px;
     height: 44px;
   }
 
   .rml-prevBtn {
-    left: 15px;
+    left: max(10px, env(safe-area-inset-left));
+    margin-left: 0;
   }
 
   .rml-nextBtn {
-    right: 15px;
-  }
-
-  .rml-navBtn svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .rml-title {
-    font-size: 15px;
-    max-width: 80%;
+    right: max(10px, env(safe-area-inset-right));
+    margin-right: 0;
   }
 
   .rml-image {
-    max-height: 65vh;
+    max-height: 88dvh;
   }
+}
 
-  .rml-playerContainer {
-    width: 95vw;
+@media (prefers-reduced-motion: reduce) {
+  .rml-overlay,
+  .rml-content,
+  .rml-image {
+    animation: none;
+    transition: none;
   }
 }

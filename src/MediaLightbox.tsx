@@ -1,8 +1,13 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import type { MediaItem, MediaLightboxProps, VideoItem } from "./types";
 import { detectProvider, getEmbedURL } from "./video";
+
+/** Minimum px travelled before a gesture is treated as a swipe. */
+const SWIPE_THRESHOLD = 50;
+/** Vertical px travelled before a downward swipe closes the lightbox. */
+const CLOSE_THRESHOLD = 110;
 
 const CloseIcon = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -114,6 +119,12 @@ export function MediaLightbox({
   const count = items?.length ?? 0;
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
+  // Live drag offset (in px) used to follow the finger during a swipe.
+  const [drag, setDrag] = useState<{ x: number; y: number } | null>(null);
+  const touchRef = useRef<{ x: number; y: number; axis: "x" | "y" | null } | null>(
+    null
+  );
+
   const handlePrev = useCallback(() => {
     setCurrentIndex((prev) => {
       const next = prev === 0 ? (loop ? count - 1 : 0) : prev - 1;
@@ -129,6 +140,47 @@ export function MediaLightbox({
       return next;
     });
   }, [count, loop, onIndexChange]);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length !== 1) return;
+    const t = e.touches[0];
+    touchRef.current = { x: t.clientX, y: t.clientY, axis: null };
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    const start = touchRef.current;
+    if (!start || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+
+    // Lock the gesture to a single axis once movement is clearly intentional.
+    if (!start.axis && Math.abs(dx) + Math.abs(dy) > 10) {
+      start.axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+    }
+
+    if (start.axis === "x") {
+      setDrag({ x: dx, y: 0 });
+    } else if (start.axis === "y" && dy > 0) {
+      // Only follow downward drags (swipe-to-close).
+      setDrag({ x: 0, y: dy });
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    const start = touchRef.current;
+    const offset = drag;
+    touchRef.current = null;
+    setDrag(null);
+    if (!start || !offset) return;
+
+    if (start.axis === "x" && Math.abs(offset.x) > SWIPE_THRESHOLD && count > 1) {
+      if (offset.x < 0) handleNext();
+      else handlePrev();
+    } else if (start.axis === "y" && offset.y > CLOSE_THRESHOLD) {
+      onClose();
+    }
+  }, [drag, count, handleNext, handlePrev, onClose]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -163,12 +215,26 @@ export function MediaLightbox({
     }
   };
 
+  const contentStyle: React.CSSProperties = drag
+    ? {
+        transform: `translate3d(${drag.x}px, ${drag.y}px, 0)`,
+        transition: "none",
+      }
+    : {};
+
+  // Dim the backdrop as the user drags down to close.
+  const overlayStyle: React.CSSProperties =
+    drag && drag.y > 0
+      ? { opacity: Math.max(0.3, 1 - drag.y / 400) }
+      : {};
+
   return (
     <div
       className={`rml-overlay${className ? ` ${className}` : ""}`}
       role="dialog"
       aria-modal="true"
       onClick={handleOverlayClick}
+      style={overlayStyle}
     >
       <button className="rml-closeBtn" onClick={onClose} aria-label="Close">
         <CloseIcon />
@@ -184,7 +250,15 @@ export function MediaLightbox({
         </button>
       )}
 
-      <div className="rml-content" onClick={handleOverlayClick}>
+      <div
+        className="rml-content"
+        onClick={handleOverlayClick}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
+        style={contentStyle}
+      >
         {current.type === "video" ? (
           <VideoSlide item={current} />
         ) : (
