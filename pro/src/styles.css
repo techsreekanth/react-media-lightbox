@@ -1,0 +1,100 @@
+.rmlp-thumbs {
+  position: fixed;
+  left: 50%;
+  bottom: max(88px, calc(env(safe-area-inset-bottom) + 72px));
+  transform: translateX(-50%);
+  z-index: 100003;
+  display: flex;
+  gap: 8px;
+  max-width: min(92vw, 720px);
+  padding: 8px 12px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.rmlp-thumbs::-webkit-scrollbar {
+  display: none;
+}
+
+.rmlp-thumb {
+  position: relative;
+  flex: 0 0 auto;
+  width: 64px;
+  height: 48px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.08);
+  transition: border-color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+  opacity: 0.65;
+}
+
+.rmlp-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.rmlp-thumbPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+}
+
+.rmlp-thumbPlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.rmlp-thumbActive {
+  border-color: #fff;
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+@media (hover: hover) {
+  .rmlp-thumb:hover {
+    opacity: 1;
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+@media (max-width: 768px) {
+  .rmlp-thumbs {
+    bottom: max(120px, calc(env(safe-area-inset-bottom) + 100px));
+    max-width: 96vw;
+    gap: 6px;
+    padding: 6px 8px;
+  }
+
+  .rmlp-thumb {
+    width: 56px;
+    height: 42px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rmlp-thumb {
+    transition: none;
+  }
+}

@@ -1,28 +1,21 @@
 {
-  "name": "react-media-lightbox",
-  "version": "0.1.1",
-  "description": "A lightweight, dependency-free React lightbox for images and video (YouTube, Vimeo, and self-hosted files).",
+  "name": "react-media-lightbox-pro",
+  "version": "0.1.0",
+  "description": "Pro add-ons for react-media-lightbox — thumbnail strip and more.",
   "keywords": [
     "react",
     "lightbox",
     "gallery",
-    "image",
-    "video",
-    "youtube",
-    "vimeo",
-    "modal",
-    "carousel"
+    "thumbnails",
+    "pro"
   ],
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "author": "Sreekanth Ramachandran <tech.sreekanth@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/techsreekanth/react-media-lightbox.git"
+    "url": "git+https://github.com/techsreekanth/react-media-lightbox.git",
+    "directory": "pro"
   },
-  "bugs": {
-    "url": "https://github.com/techsreekanth/react-media-lightbox/issues"
-  },
-  "homepage": "https://github.com/techsreekanth/react-media-lightbox#readme",
   "type": "module",
   "sideEffects": [
     "**/*.css"
@@ -39,27 +32,26 @@
     "./styles.css": "./dist/styles.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build",
-    "demo": "npm run dev --prefix demo",
-    "demo:install": "npm install --prefix demo",
-    "build:pro": "npm run build --prefix pro",
-    "build:all": "npm run build && npm run build:pro"
+    "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
     "react": ">=18",
-    "react-dom": ">=18"
+    "react-dom": ">=18",
+    "react-media-lightbox": ">=0.1.1"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-media-lightbox": "file:..",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2"
   }

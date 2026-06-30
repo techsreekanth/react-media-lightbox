@@ -1,0 +1,11 @@
+Pro features for react-media-lightbox.
+
+The open-source core stays MIT-licensed. This package is a preview of paid add-ons (thumbnail strip today; zoom, slideshow, themes, and more planned).
+
+For local development and evaluation, install from the monorepo:
+
+```bash
+cd pro && npm install && npm run build
+```
+
+Commercial use requires a license — see the main README Premium section.

@@ -35,8 +35,10 @@ export type MediaItem = ImageItem | VideoItem;
 export interface MediaLightboxProps {
   /** The media items to display. */
   items: MediaItem[];
-  /** Index of the item to open first. Defaults to `0`. */
+  /** Index of the item to open first. Defaults to `0`. Ignored when `index` is set. */
   initialIndex?: number;
+  /** Controlled active index. When set, the parent must update this via `onIndexChange`. */
+  index?: number;
   /** Called when the lightbox requests to close (Esc, close button, overlay click). */
   onClose: () => void;
   /** Fallback image URL used when an image fails to load. */

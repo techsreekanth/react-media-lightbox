@@ -107,6 +107,7 @@ function VideoSlide({ item }: { item: VideoItem }) {
 export function MediaLightbox({
   items,
   initialIndex = 0,
+  index: controlledIndex,
   onClose,
   fallbackSrc,
   showCounter = true,
@@ -117,7 +118,26 @@ export function MediaLightbox({
   onIndexChange,
 }: MediaLightboxProps) {
   const count = items?.length ?? 0;
-  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const isControlled = controlledIndex !== undefined;
+  const [uncontrolledIndex, setUncontrolledIndex] = useState(initialIndex);
+  const currentIndex = isControlled ? controlledIndex : uncontrolledIndex;
+
+  const setCurrentIndex = useCallback(
+    (next: number | ((prev: number) => number)) => {
+      if (isControlled) {
+        const resolved =
+          typeof next === "function" ? next(controlledIndex) : next;
+        onIndexChange?.(resolved);
+        return;
+      }
+      setUncontrolledIndex((prev) => {
+        const resolved = typeof next === "function" ? next(prev) : next;
+        onIndexChange?.(resolved);
+        return resolved;
+      });
+    },
+    [controlledIndex, isControlled, onIndexChange]
+  );
 
   // Live drag offset (in px) used to follow the finger during a swipe.
   const [drag, setDrag] = useState<{ x: number; y: number } | null>(null);
@@ -126,20 +146,16 @@ export function MediaLightbox({
   );
 
   const handlePrev = useCallback(() => {
-    setCurrentIndex((prev) => {
-      const next = prev === 0 ? (loop ? count - 1 : 0) : prev - 1;
-      onIndexChange?.(next);
-      return next;
-    });
-  }, [count, loop, onIndexChange]);
+    setCurrentIndex((prev) =>
+      prev === 0 ? (loop ? count - 1 : 0) : prev - 1
+    );
+  }, [count, loop, setCurrentIndex]);
 
   const handleNext = useCallback(() => {
-    setCurrentIndex((prev) => {
-      const next = prev === count - 1 ? (loop ? 0 : count - 1) : prev + 1;
-      onIndexChange?.(next);
-      return next;
-    });
-  }, [count, loop, onIndexChange]);
+    setCurrentIndex((prev) =>
+      prev === count - 1 ? (loop ? 0 : count - 1) : prev + 1
+    );
+  }, [count, loop, setCurrentIndex]);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (e.touches.length !== 1) return;
